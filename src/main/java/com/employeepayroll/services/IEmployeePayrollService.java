@@ -6,11 +6,14 @@ import com.employeepayroll.dto.EmployeePayrollDTO;
 import com.employeepayroll.model.EmployeePayrollData;
 
 public interface IEmployeePayrollService {
-	List<EmployeePayrollDTO> getAllUser();
+	List<EmployeePayrollData> getEmployeePayrollData();
+	
+	EmployeePayrollData getEmployeePayrollDataById(Long employeeId);
+	
+	EmployeePayrollData createEmployeePayrollData(EmployeePayrollDTO employeePayrollDTO);
 
-	EmployeePayrollDTO createUser(EmployeePayrollDTO user);
+	EmployeePayrollData updateEmployeePayrollData(Long employeeId, EmployeePayrollDTO employeePayrollDTO);
 
-	EmployeePayrollDTO updateUser(EmployeePayrollDTO user);
+	void deleteEmployeePayrollData(Long employeeId);
 
-	EmployeePayrollDTO deleteUser(Long id);
 }
