@@ -25,44 +25,45 @@ import com.employeepayroll.services.IEmployeePayrollService;
 @RestController
 @RequestMapping("/employeepayrollservice")
 public class EmployeePayrollController {
-
-	@Autowired
-	private IEmployeePayrollService employeePayrollService;
 	
-	@GetMapping("/get")
-	public ResponseEntity<List<EmployeePayrollDTO>> getAllUser(){
-		try {
-			return ResponseEntity.status(HttpStatus.OK).body(employeePayrollService.getAllUser());
-		}catch(Exception e){
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-		}
+	@Autowired
+	private IEmployeePayrollService employeepayrollService;
+	
+	@RequestMapping(value = {"", "/", "/get"})
+	public List<EmployeePayrollData> getEmployeePayrollData() {
+		List<EmployeePayrollData> empDataList = null;
+		empDataList = employeepayrollService.getEmployeePayrollData();
+		return empDataList;
 	}
-
+	
+	@GetMapping("/get/{employeeId}")
+	public ResponseEntity<ResponseDTO> getEmployeePayrollData(@PathVariable("employeeId") Long employeeId) {
+		EmployeePayrollData employeePayrollData = null;
+		employeePayrollData = employeepayrollService.getEmployeePayrollDataById(employeeId);
+		ResponseDTO responseDTO = new ResponseDTO("GET Call For ID Successfull", employeePayrollData);
+		return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
+	}
+	
 	@PostMapping("/create")
-	public ResponseEntity<EmployeePayrollDTO> createUser(@Valid @RequestBody EmployeePayrollDTO user){
-		try {
-			return ResponseEntity.status(HttpStatus.CREATED).body(employeePayrollService.createUser(user));
-		}catch(UserNotFound e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
+	public ResponseEntity<ResponseDTO> addEmployeePayrollData(@Valid @RequestBody EmployeePayrollDTO employeePayrollDTO){
+		EmployeePayrollData employeePayrollData = null;
+		employeePayrollData = employeepayrollService.createEmployeePayrollData(employeePayrollDTO);
+		ResponseDTO responseDTO = new ResponseDTO("Created Employee Payroll Data Successfull", employeePayrollData);
+		return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
 	}
-
-	@PutMapping("/update")
-	public ResponseEntity<EmployeePayrollDTO> updateUser(@Valid @RequestBody EmployeePayrollDTO user){
-		try {
-			return ResponseEntity.status(HttpStatus.OK).body(employeePayrollService.updateUser(user));
-		}catch(UserNotFound e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
+	
+	@PutMapping("/update/{employeeId}")
+	public ResponseEntity<ResponseDTO> updateEmployeePayrollData(@Valid @PathVariable("employeeId") Long employeeId, @RequestBody EmployeePayrollDTO employeePayrollDTO) {
+		EmployeePayrollData employeePayrollData = null;
+		employeePayrollData = employeepayrollService.updateEmployeePayrollData(employeeId, employeePayrollDTO);
+		ResponseDTO responseDTO = new ResponseDTO("Updated Employee Payroll Data Successfull", employeePayrollData);
+		return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
 	}
-
-	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<EmployeePayrollDTO> deleteUser(@PathVariable("id")Long id){
-		try {
-			return ResponseEntity.status(HttpStatus.ACCEPTED).body(employeePayrollService.deleteUser(id));
-		}catch(UserNotFound e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-		}
+	
+	@DeleteMapping("/delete/{employeeId}")
+	public ResponseEntity<ResponseDTO> deleteEmployeePayrollData(@PathVariable("employeeId") Long employeeId) {
+		employeepayrollService.deleteEmployeePayrollData(employeeId);
+		ResponseDTO responseDTO = new ResponseDTO("Deleted Successfully", "Deleted ID: " + employeeId);
+		return new ResponseEntity<ResponseDTO>(responseDTO, HttpStatus.OK);
 	}
-
 }

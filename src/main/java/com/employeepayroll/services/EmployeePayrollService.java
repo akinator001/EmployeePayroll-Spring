@@ -15,45 +15,49 @@ import com.employeepayroll.model.EmployeePayrollData;
 import com.employeepayroll.repository.EmployeePayrollRepository;
 
 @Service
-public class EmployeePayrollService implements IEmployeePayrollService{
+public class EmployeePayrollService implements IEmployeePayrollService {
+	
 	@Autowired
-    private EmployeePayrollRepository employeePayrollRepository;
-	
-	public List<EmployeePayrollDTO> getAllUser(){
-		return employeePayrollRepository.findAll().stream()
-				.map(employeePayroll -> new EmployeePayrollDTO(employeePayroll))
-				.collect(Collectors.toList());
-    }
-
+	private EmployeePayrollRepository employeePayrollRepository;
 	
 	@Override
-	public EmployeePayrollDTO createUser(EmployeePayrollDTO employeePayrollDTO) {
-		if(Objects.nonNull(employeePayrollDTO.getName()) && Objects.nonNull(employeePayrollDTO.getBasicPay())){
-			EmployeePayrollData employeePayroll = new EmployeePayrollData(employeePayrollDTO.getName(), employeePayrollDTO.getBasicPay(),employeePayrollDTO.getGender(),employeePayrollDTO.getStartDate());
-			return new EmployeePayrollDTO(employeePayrollRepository.save(employeePayroll));
-		}
-		throw new DetailsNotProvidedExceptions("Invalid Data");
+	public List<EmployeePayrollData> getEmployeePayrollData() {
+		return (List<EmployeePayrollData>) employeePayrollRepository.findAll();
+	}
+	
+	@Override
+	public EmployeePayrollData getEmployeePayrollDataById(Long employeeId) {
+		return employeePayrollRepository.findById(employeeId).get();
+	}
+	
+	@Override
+	public EmployeePayrollData createEmployeePayrollData(EmployeePayrollDTO employeePayrollDTO) {
+		EmployeePayrollData employeePayrollData = null;
+		employeePayrollData = new EmployeePayrollData(employeePayrollDTO);
+		employeePayrollRepository.save(employeePayrollData);
+		return employeePayrollData;
+	}
+	
+	@Override
+	public EmployeePayrollData updateEmployeePayrollData(Long employeeId, EmployeePayrollDTO employeePayrollDTO) {
+		EmployeePayrollData employeePayrollData = this.getEmployeePayrollDataById(employeeId);
+		employeePayrollData.setName(employeePayrollDTO.getName());
+		employeePayrollData.setGender(employeePayrollDTO.getGender());
+		employeePayrollData.setProfilePic(employeePayrollDTO.getProfilePic());
+		employeePayrollData.setSalary(employeePayrollDTO.getSalary());
+		employeePayrollData.setNotes(employeePayrollDTO.getNotes());
+		employeePayrollData.setDepartments(employeePayrollDTO.getDepartments());
+		employeePayrollData.setStartDate(employeePayrollDTO.getStartDate());
+		employeePayrollRepository.save(employeePayrollData);
+		
+		return employeePayrollData;
 	}
 
 	@Override
-	public EmployeePayrollDTO updateUser(EmployeePayrollDTO employeePayrollDTO) {
-		return employeePayrollRepository.findById(employeePayrollDTO.getId()).map(employeePayroll -> {
-			if(Objects.nonNull(employeePayrollDTO.getName())) {
-				employeePayroll.setName(employeePayrollDTO.getName());
-			}
-			if(Objects.nonNull(employeePayrollDTO.getBasicPay())) {
-				employeePayroll.setBasicPay(employeePayrollDTO.getBasicPay());
-			}
-			return new EmployeePayrollDTO(employeePayrollRepository.save(employeePayroll));
-		}).orElseThrow(() -> new UserNotFound("UserNotFound"));
-	}
+	public void deleteEmployeePayrollData(Long employeeId) {	
+		
+		employeePayrollRepository.deleteById(employeeId);
 
-	@Override
-	public EmployeePayrollDTO deleteUser(Long id) {
-		return employeePayrollRepository.findById(id).map(employeePayroll -> {
-			employeePayrollRepository.deleteById(employeePayroll.getId());
-			return new EmployeePayrollDTO(employeePayroll);
-		}).orElseThrow(() -> new UserNotFound("UserNOtFound"));
 	}
 
 }
